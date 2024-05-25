@@ -3,6 +3,7 @@
 [![hf_space](https://img.shields.io/badge/🤗-%20Open%20In%20HF-blue.svg)](https://huggingface.co/tinyllava) [![arXiv](https://img.shields.io/badge/Arxiv-2402.14289-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs/2402.14289) [![License](https://img.shields.io/badge/License-Apache%202.0-yellow)](https://github.com/TinyLLaVA/TinyLLaVA_Factory/blob/main/LICENSE) [![Doc](https://img.shields.io/badge/Doc-Document-logo=read%20the%20docs&logoColor=white&label=Doc)](https://tinyllava-factory.readthedocs.io/en/latest/) [![Demo](https://img.shields.io/badge/Demo-Demo-red.svg)](http://8843843nmph5.vicp.fun/#/)
 
 ## &#x1F389; News
+* **[2024.05.21]**  Our paper: [TinyLLaVA Factory: A Modularized Codebase for Small-scale Large Multimodal Models](https://arxiv.org/abs/2405.11788) is released!
 * **[2024.05.15]** [TinyLLaVA Factory](https://github.com/TinyLLaVA/TinyLLaVA_Factory), our new codebase, is released!  **Note that the old codebase, TinyLLaVABench, is moved to the [tinyllava_bench](https://github.com/TinyLLaVA/TinyLLaVA_Factory/tree/tinyllava_bench) branch.**
 * **[2024.05.04]**  [TinyLLaVA Demo](http://8843843nmph5.vicp.fun/#/) is released!
 * **[2024.02.21]**  Our paper: [TinyLLaVA: A Framework of Small-scale Large Multimodal Models](https://arxiv.org/abs/2402.14289) is released!
@@ -19,8 +20,10 @@
   - LLM currently supports **OpenELM**, **TinyLlama**, **StableLM**, **Qwen**, **Gemma**, and **Phi**. 
 
   - Vision tower currently supports **CLIP,** **SigLIP**, **Dino**, and **combination of CLIP and Dino**.
-
+    
   - Connector currently supports **MLP**, **Qformer**, and **Resampler**.
+    
+  - Training Recipe currently supports **Frozen/Fully/Partially tuning** and **LoRA/QLoRA tuning**.
 
 ## Contents
 
@@ -28,7 +31,8 @@
 - [Get Started](#get-started)
 - [Model Zoo](#model-zoo)
 - [Launch Demo Locally](#launch-demo-locally)
-- [Customization](#customize-your-own-multimodel-models)
+- [Custom Finetune](#Custom-Finetune)
+- [Customize Your Own Large Multimodel Models](#customize-your-own-multimodel-models)
 
 
 ## Installation and Requirements
@@ -82,7 +86,7 @@ bash scripts/train/train_phi.sh
 Important hyperparameters used in pretraining and finetuning are provided below.
 
 | Training Stage | Global Batch Size | Learning rate | conv_version |
-| -------------- | ----------------- | ------------- | ------------ |
+| -------------- | :---------------: | :-----------: | :----------: |
 | Pretraining    | 256               | 1e-3          | pretrain     |
 | Finetuning     | 128               | 2e-5          | phi          |
 
@@ -110,22 +114,23 @@ which are trained using TinyLLaVA Factory.
 
 - [TinyLLaVA-Phi-2-SigLIP-3.1B](https://huggingface.co/tinyllava/TinyLLaVA-Phi-2-SigLIP-3.1B)
 - [TinyLLaVA-Gemma-SigLIP-2.4B](https://huggingface.co/tinyllava/TinyLLaVA-Gemma-SigLIP-2.4B)
+- [TinyLLaVA-OpenELM-450M-SigLIP-0.89B](https://huggingface.co/jiajunlong/TinyLLaVA-0.89B)
 
 #### Model Performance
 
-| VT (HF Path)                      | LLM (HF Path)                      | Recipe    | VQA-v2 | GQA  | SQA-image | TextVQA | MM-Vet | POPE | MME    | MMMU |
-| --------------------------------- | ---------------------------------- | --------- | ------ | ---- | --------- | ------- | ------ | ---- | ------ | ---- |
-| openai/clip-vit-large-patch14-336 | apple/OpenELM-450M-Instruct        | base      | 69.5   | 52.1 | 50.6      | 40.4    | 20.0   | 83.6 | 1052.9 | 23.9 |
-| google/siglip-so400m-patch14-384  | apple/OpenELM-450M-Instruct        | base      | 71.7   | 53.9 | 54.1      | 44.0    | 20.0   | 85.4 | 1118.8 | 24.0 |
-| openai/clip-vit-large-patch14-336 | TinyLlama/TinyLlama-1.1B-Chat-v1.0 | base      | 73.7   | 58.0 | 59.9      | 46.3    | 23.2   | 85.5 | 1284.6 | 27.9 |
-| google/siglip-so400m-patch14-384  | TinyLlama/TinyLlama-1.1B-Chat-v1.0 | base      | 75.5   | 58.6 | 64.0      | 49.6    | 23.5   | 86.3 | 1256.5 | 28.3 |
-| openai/clip-vit-large-patch14-336 | stabilityai/stablelm-2-zephyr-1_6b | base      | 75.9   | 59.5 | 64.6      | 50.5    | 27.3   | 86.1 | 1368.1 | 31.8 |
-| google/siglip-so400m-patch14-384  | stabilityai/stablelm-2-zephyr-1_6b | base      | 78.2   | 60.7 | 66.7      | 56.0    | 29.4   | 86.3 | 1319.3 | 32.6 |
-| google/siglip-so400m-patch14-384  | google/gemma-2b-it                 | base      | 78.4   | 61.6 | 64.4      | 53.6    | 26.9   | 86.4 | 1339.0 | 31.7 |
-| openai/clip-vit-large-patch14-336 | microsoft/phi-2                    | base      | 76.8   | 59.4 | 71.2      | 53.4    | 31.7   | 86.8 | 1448.6 | 36.3 |
-| google/siglip-so400m-patch14-384  | microsoft/phi-2                    | base      | 79.2   | 61.6 | 71.9      | 57.4    | 35.0   | 87.2 | 1462.4 | 38.2 |
-| google/siglip-so400m-patch14-384  | microsoft/phi-2                    | base&lora | 77.6   | 59.7 | 71.6      | 53.8    | 33.3   | 87.9 | 1413.2 | 35.6 |
-| google/siglip-so400m-patch14-384  | microsoft/phi-2                    | share     | 80.1   | 62.1 | 73.0      | 60.3    | 37.5   | 87.2 | 1466.4 | 38.4 |
+| VT (HF Path)                      | LLM (HF Path)                      | Recipe    | VQA-v2 | GQA  | SQA-image | TextVQA | MM-Vet | POPE | MME    | MMMU-val |
+| --------------------------------- | ---------------------------------- | --------- | :----: | :--: | :-------: | :-----: | :----: | :--: | :----: | :------: |
+| openai/clip-vit-large-patch14-336 | apple/OpenELM-450M-Instruct        | base      | 69.5   | 52.1 | 50.6      | 40.4    | 20.0   | 83.6 | 1052.9 | 23.9     |
+| google/siglip-so400m-patch14-384  | apple/OpenELM-450M-Instruct        | base      | 71.7   | 53.9 | 54.1      | 44.0    | 20.0   | 85.4 | 1118.8 | 24.0     |
+| openai/clip-vit-large-patch14-336 | TinyLlama/TinyLlama-1.1B-Chat-v1.0 | base      | 73.7   | 58.0 | 59.9      | 46.3    | 23.2   | 85.5 | 1284.6 | 27.9     |
+| google/siglip-so400m-patch14-384  | TinyLlama/TinyLlama-1.1B-Chat-v1.0 | base      | 75.5   | 58.6 | 64.0      | 49.6    | 23.5   | 86.3 | 1256.5 | 28.3     |
+| openai/clip-vit-large-patch14-336 | stabilityai/stablelm-2-zephyr-1_6b | base      | 75.9   | 59.5 | 64.6      | 50.5    | 27.3   | 86.1 | 1368.1 | 31.8     |
+| google/siglip-so400m-patch14-384  | stabilityai/stablelm-2-zephyr-1_6b | base      | 78.2   | 60.7 | 66.7      | 56.0    | 29.4   | 86.3 | 1319.3 | 32.6     |
+| google/siglip-so400m-patch14-384  | google/gemma-2b-it                 | base      | 78.4   | 61.6 | 64.4      | 53.6    | 26.9   | 86.4 | 1339.0 | 31.7     |
+| openai/clip-vit-large-patch14-336 | microsoft/phi-2                    | base      | 76.8   | 59.4 | 71.2      | 53.4    | 31.7   | 86.8 | 1448.6 | 36.3     |
+| google/siglip-so400m-patch14-384  | microsoft/phi-2                    | base      | 79.2   | 61.6 | 71.9      | 57.4    | 35.0   | 87.2 | 1462.4 | 38.2     |
+| google/siglip-so400m-patch14-384  | microsoft/phi-2                    | base&lora | 77.6   | 59.7 | 71.6      | 53.8    | 33.3   | 87.9 | 1413.2 | 35.6     |
+| google/siglip-so400m-patch14-384  | microsoft/phi-2                    | share     | 80.1   | 62.1 | 73.0      | 60.3    | 37.5   | 87.2 | 1466.4 | 38.4     |
 
 ### Legacy Models
 
@@ -188,12 +193,13 @@ from tinyllava.eval.run_tiny_llava import eval_model
 model_path = "/absolute/path/to/your/model/"
 prompt = "What are the things I should be cautious about when I visit here?"
 image_file = "https://llava-vl.github.io/static/images/view.jpg"
+conv_mode = "phi" # or llama, gemma, etc
 
 args = type('Args', (), {
     "model_path": model_path,
     "model_base": None,
     "query": prompt,
-    "conv_mode": "phi",
+    "conv_mode": conv_mode,
     "image_file": image_file,
     "sep": ",",
     "temperature": 0,
@@ -230,6 +236,9 @@ print('model output:', output_text)
 print('runing time:', genertaion_time)
 ```
 </details>
+
+## Custom Finetune
+If you want to finetune TinyLLaVA with your custom datasets, please refer to [here](https://github.com/TinyLLaVA/TinyLLaVA_Factory/blob/main/CUSTOM_FINETUNE.md).
 
 ## Customize Your Own Large Multimodel Models
 
